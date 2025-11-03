@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "./App.css";
 
 function App() {
   const [countries, setCountries] = useState([]);
@@ -13,7 +12,7 @@ function App() {
         );
         const data = await response.json();
 
-        // ✅ Map data safely (API usually returns { name, flag, code })
+        // ✅ Normalize data in case field names differ
         const formatted = data.map((c) => ({
           name: c.name || c.country || "Unknown",
           flag: c.flag || "",
@@ -28,42 +27,110 @@ function App() {
     fetchCountries();
   }, []);
 
-  // ✅ Filter countries case-insensitively
+  // ✅ Filter countries by search input (case-insensitive)
   const filtered = countries.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="app">
-      <h1>Countries</h1>
+      <h1 className="title">🌍 Country Search</h1>
+
+      {/* Search Input */}
       <input
         type="text"
-        placeholder="Search for a country..."
+        placeholder="Search countries..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="search-input"
+        className="searchInput"
       />
 
-      <div
-        className="countries-grid"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          gap: "1rem",
-          marginTop: "2rem",
-        }}
-      >
+      {/* Country Grid */}
+      <div className="grid">
         {filtered.length > 0 ? (
           filtered.map((c) => (
             <div key={c.code} className="countryCard">
-              <img src={c.flag} alt={c.name} width="100" height="60" />
-              <p>{c.name}</p>
+              <img src={c.flag} alt={c.name} className="flag" />
+              <p className="countryName">{c.name}</p>
             </div>
           ))
         ) : (
-          <p>No countries found.</p>
+          <p className="noResults">No countries found</p>
         )}
       </div>
+
+      {/* Inline CSS */}
+      <style>{`
+        body {
+          margin: 0;
+          background-color: #1f2937;
+          font-family: Arial, sans-serif;
+          color: white;
+        }
+
+        .app {
+          text-align: center;
+          padding: 40px;
+        }
+
+        .title {
+          font-size: 28px;
+          margin-bottom: 20px;
+        }
+
+        .searchInput {
+          padding: 10px;
+          width: 50%;
+          border-radius: 8px;
+          border: 1px solid #ccc;
+          font-size: 16px;
+          margin-bottom: 25px;
+          outline: none;
+        }
+
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: 20px;
+          justify-items: center;
+          align-items: center;
+          padding: 20px;
+        }
+
+        .countryCard {
+          background-color: white;
+          color: black;
+          border-radius: 10px;
+          width: 140px;
+          padding: 10px;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+          text-align: center;
+          transition: transform 0.2s ease-in-out;
+        }
+
+        .countryCard:hover {
+          transform: scale(1.05);
+        }
+
+        .flag {
+          width: 100%;
+          height: 80px;
+          object-fit: cover;
+          border-radius: 6px;
+        }
+
+        .countryName {
+          margin-top: 8px;
+          font-weight: bold;
+          font-size: 14px;
+        }
+
+        .noResults {
+          grid-column: 1 / -1;
+          font-size: 18px;
+          color: #ff6666;
+        }
+      `}</style>
     </div>
   );
 }
