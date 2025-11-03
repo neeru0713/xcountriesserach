@@ -13,13 +13,12 @@ function App() {
         );
         const data = await response.json();
 
-        // ✅ Defensive check for missing or invalid data
-        const formatted = Array.isArray(data)
-          ? data.map((c) => ({
-              name: c?.name || "Unknown",
-              flag: c?.flag || "",
-            }))
-          : [];
+        // ✅ Defensive mapping for safe rendering
+        const formatted = (Array.isArray(data) ? data : []).map((country) => ({
+          name: country?.name?.toString() || "Unknown",
+          flag:
+            country?.flag || "https://via.placeholder.com/120x70?text=No+Flag",
+        }));
 
         setCountries(formatted);
       } catch (error) {
@@ -30,16 +29,16 @@ function App() {
     fetchCountries();
   }, []);
 
-  // ✅ Fix .toLowerCase() crash by handling missing names safely
+  // ✅ Safe filtering to avoid undefined.toLowerCase() crash
   const filteredCountries = countries.filter((country) =>
-    (country?.name || "").toLowerCase().includes(searchTerm.toLowerCase())
+    (country.name || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="app">
       <h1 className="title">Countries and Flags</h1>
 
-      {/* 🔍 Search Input */}
+      {/* 🔍 Search Bar */}
       <input
         type="text"
         placeholder="Search for a country..."
@@ -48,22 +47,19 @@ function App() {
         className="searchInput"
       />
 
-      {/* 🌍 Grid Section */}
+      {/* 🌍 Grid of Countries */}
       <div className="grid">
-        {filteredCountries.length > 0 ? (
-          filteredCountries.map((country) => (
-            <div key={country.name} className="countryCard">
-              {country.flag ? (
-                <img src={country.flag} alt={country.name} className="flag" />
-              ) : (
-                <div className="no-flag">No Flag</div>
-              )}
-              <h2 className="country-name">{country.name}</h2>
-            </div>
-          ))
-        ) : (
-          <p className="noResults">No results found</p>
-        )}
+        {filteredCountries.map((country, index) => (
+          <div key={index} className="countryCard">
+            <img
+              src={country.flag}
+              alt={country.name}
+              className="flag"
+              loading="lazy"
+            />
+            <h2 className="country-name">{country.name}</h2>
+          </div>
+        ))}
       </div>
 
       <style>{`
@@ -129,22 +125,6 @@ function App() {
           margin-top: 8px;
           font-weight: bold;
           font-size: 14px;
-        }
-
-        .noResults {
-          grid-column: 1 / -1;
-          font-size: 18px;
-          color: #ff6666;
-        }
-
-        .no-flag {
-          height: 70px;
-          background-color: #ddd;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          border-radius: 6px;
-          color: #333;
         }
       `}</style>
     </div>
