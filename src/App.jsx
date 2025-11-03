@@ -42,7 +42,7 @@ function App() {
         placeholder="Search countries..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="countryCard"
+        className="searchInput"
       />
 
       {/* Country Grid */}
