@@ -15,8 +15,8 @@ useEffect(() => {
       console.log("Fetched countries:", data); // ✅ API success log
 
       const formattedData = data.map((country, index) => ({
-        name: country?.name || `Country ${index}`,
-        flag: country?.flag || "",
+        name: country?.common || `Country ${index}`,
+        flag: country?.png || "",
       }));
 
       setCountries(formattedData);
