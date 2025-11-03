@@ -4,30 +4,29 @@ function App() {
   const [countries, setCountries] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const response = await fetch(
-          "https://restcountries.com/v3.1/all?fields=name,flags"
-        );
-        const data = await response.json();
+useEffect(() => {
+  const fetchCountries = async () => {
+    try {
+      const response = await fetch(
+        "https://countries-search-data-prod-812920491762.asia-south1.run.app/countries"
+      );
+      const data = await response.json();
 
-        // ✅ API Success Log
-        console.log("Fetched countries:", data);
+      console.log("Fetched countries:", data); // ✅ API success log
 
-        const formattedData = data.map((country) => ({
-          name: country?.name?.common || "Unknown",
-          flag: country?.flags?.svg || country?.flags?.png || "",
-        }));
+      const formattedData = data.map((country, index) => ({
+        name: country?.name || `Country ${index}`,
+        flag: country?.flag || "",
+      }));
 
-        setCountries(formattedData);
-      } catch (error) {
-        // ✅ API Error Handling Log
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchCountries();
-  }, []);
+      setCountries(formattedData);
+    } catch (error) {
+      console.error("Error fetching data:", error); // ✅ Error log
+    }
+  };
+  fetchCountries();
+}, []);
+
 
   // ✅ Fix for Cypress Test 3: "should show 3 containers when searching for 'ind'"
   const filteredCountries = countries.filter((country) => {
