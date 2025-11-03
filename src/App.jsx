@@ -4,28 +4,21 @@ function App() {
   const [countries, setCountries] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const response = await fetch(
-          "https://restcountries.com/v3.1/all?fields=name,flags"
-        );
-        const data = await response.json();
+useEffect(() => {
+  const fetchCountries = async () => {
+    try {
+      const response = await fetch(
+        "https://countries-search-data-prod-812920491762.asia-south1.run.app/countries"
+      );
+      const data = await response.json();
+      setCountries(data);
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+    }
+  };
+  fetchCountries();
+}, []);
 
-        console.log("Fetched countries:", data); // ✅ check array
-
-        const formattedData = data.map((country) => ({
-          name: country?.name?.common || "Unknown",
-          flag: country?.flags?.svg || country?.flags?.png || "",
-        }));
-
-        setCountries(formattedData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchCountries();
-  }, []);
 
   const filteredCountries = countries.filter((country) =>
     country.name.toLowerCase().includes(searchTerm.toLowerCase())
