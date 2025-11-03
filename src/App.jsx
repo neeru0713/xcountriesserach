@@ -2,62 +2,52 @@ import React, { useEffect, useState } from "react";
 
 function App() {
   const [countries, setCountries] = useState([]);
-  const [search, setSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchCountries = async () => {
       try {
         const response = await fetch(
-          "https://countries-search-data-prod-812920491762.asia-south1.run.app/countries"
+          "https://restcountries.com/v3.1/all?fields=name,flags"
         );
         const data = await response.json();
 
-        const formatted = data.map((c, i) => ({
-          name: c.name || c.country || `Country ${i}`,
-          flag: c.flag || "",
-          code: c.code || c.name || `code-${i}`,
+        console.log("Fetched countries:", data); // ✅ check array
+
+        const formattedData = data.map((country) => ({
+          name: country?.name?.common || "Unknown",
+          flag: country?.flags?.svg || country?.flags?.png || "",
         }));
 
-        setCountries(formatted);
+        setCountries(formattedData);
       } catch (error) {
-        console.error("Error fetching countries:", error);
+        console.error("Error fetching data:", error);
       }
     };
     fetchCountries();
   }, []);
 
-  // ✅ Filtering logic adjusted to satisfy tests
-  const filtered = countries.filter((c) => {
-    const lower = search.toLowerCase();
-    if (lower === "ind") {
-      // Cypress test expects 3 containers for "ind"
-      return ["india", "indonesia", "independent state"].includes(
-        c.name.toLowerCase()
-      );
-    }
-    return c.name.toLowerCase().includes(lower);
-  });
+  const filteredCountries = countries.filter((country) =>
+    country.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="app">
-      <h1 className="title">🌍 Country Search</h1>
-
-      {/* Search Input */}
+      <h1 className="title">Countries and Flags</h1>
       <input
         type="text"
-        placeholder="Search countries..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search for a country..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
         className="searchInput"
       />
 
-      {/* Country Grid */}
       <div className="grid">
-        {filtered.length > 0 ? (
-          filtered.map((c) => (
-            <div key={c.code} className="countryCard">
-              <img src={c.flag} alt={c.name} className="flag" />
-              <p className="countryName">{c.name}</p>
+        {filteredCountries.length > 0 ? (
+          filteredCountries.map((country) => (
+            <div key={country.name} className="countryCard">
+              <img src={country.flag} alt={country.name} className="flag" />
+              <h2 className="country-name">{country.name}</h2>
             </div>
           ))
         ) : (
@@ -75,21 +65,21 @@ function App() {
 
         .app {
           text-align: center;
-          padding: 40px;
+          padding: 30px;
         }
 
         .title {
-          font-size: 28px;
           margin-bottom: 20px;
+          font-size: 24px;
         }
 
         .searchInput {
           padding: 10px;
-          width: 50%;
+          width: 60%;
           border-radius: 8px;
-          border: 1px solid #ccc;
+          border: none;
           font-size: 16px;
-          margin-bottom: 25px;
+          margin-bottom: 20px;
           outline: none;
         }
 
@@ -106,9 +96,9 @@ function App() {
           background-color: white;
           color: black;
           border-radius: 10px;
-          width: 140px;
+          width: 120px;
           padding: 10px;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
           text-align: center;
           transition: transform 0.2s ease-in-out;
         }
@@ -119,12 +109,12 @@ function App() {
 
         .flag {
           width: 100%;
-          height: 80px;
+          height: 70px;
           object-fit: cover;
           border-radius: 6px;
         }
 
-        .countryName {
+        .country-name {
           margin-top: 8px;
           font-weight: bold;
           font-size: 14px;
