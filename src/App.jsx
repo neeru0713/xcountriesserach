@@ -1,52 +1,72 @@
 import React, { useEffect, useState } from "react";
+import "./App.css";
 
 function App() {
   const [countries, setCountries] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-useEffect(() => {
-  const fetchCountries = async () => {
-    try {
-      const response = await fetch(
-        "https://countries-search-data-prod-812920491762.asia-south1.run.app/countries"
-      );
-      const data = await response.json();
-      setCountries(data);
-    } catch (error) {
-      console.error("Error fetching countries:", error);
-    }
-  };
-  fetchCountries();
-}, []);
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch(
+          "https://countries-search-data-prod-812920491762.asia-south1.run.app/countries"
+        );
+        const data = await response.json();
+        setCountries(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error fetching countries:", error);
+      }
+    };
+    fetchCountries();
+  }, []);
 
-
+  // Prevent crashing if name is missing
   const filteredCountries = countries.filter((country) =>
-    country.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (country?.name || "")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="app">
-      <h1 className="title">Countries and Flags</h1>
-      <input
-        type="text"
-        placeholder="Search for a country..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="searchInput"
-      />
+    <div className="p-8">
+      {/* 🔍 Search Bar */}
+      <div className="flex justify-center mb-8">
+        <input
+          type="text"
+          placeholder="Search countries..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-gray-400 rounded-lg px-4 py-2 w-1/2"
+        />
+      </div>
 
-      <div className="grid">
+      {/* 🌍 Country Grid */}
+      <div className="grid grid-cols-7 gap-6">
         {filteredCountries.length > 0 ? (
           filteredCountries.map((country) => (
-            <div key={country.name} className="countryCard">
-              <img src={country.flag} alt={country.name} className="flag" />
-              <h2 className="country-name">{country.name}</h2>
+            <div
+              key={country.name}
+              className="border rounded-lg shadow p-2 text-center hover:scale-105 transition"
+            >
+              <img
+                src={country.flag}
+                alt={country.name}
+                className="w-full h-24 object-cover rounded-md"
+              />
+              <p className="mt-2 font-semibold text-sm">{country.name}</p>
             </div>
           ))
         ) : (
-          <p className="noResults">No countries found</p>
+          <p className="col-span-7 text-center text-gray-600">
+            No results found
+          </p>
         )}
       </div>
+    </div>
+  );
+}
+
+
 
       <style>{`
         body {
