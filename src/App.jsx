@@ -3,7 +3,7 @@ import "./App.css";
 
 function App() {
   const [countries, setCountries] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const fetchCountries = async () => {
@@ -12,55 +12,56 @@ function App() {
           "https://countries-search-data-prod-812920491762.asia-south1.run.app/countries"
         );
         const data = await response.json();
-
-        // ✅ Defensive mapping for safe rendering
-        const formatted = (Array.isArray(data) ? data : []).map((country) => ({
-          name: country?.name?.toString() || "Unknown",
-          flag:
-            country?.flag || "https://via.placeholder.com/120x70?text=No+Flag",
-        }));
-
-        setCountries(formatted);
+        setCountries(data);
       } catch (error) {
         console.error("Error fetching countries:", error);
       }
     };
-
     fetchCountries();
   }, []);
 
-  // ✅ Safe filtering to avoid undefined.toLowerCase() crash
+  // ✅ Safe filtering with optional chaining
   const filteredCountries = countries.filter((country) =>
-    (country.name || "").toLowerCase().includes(searchTerm.toLowerCase())
+    country?.name?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="app">
-      <h1 className="title">Countries and Flags</h1>
-
-      {/* 🔍 Search Bar */}
+      {/* Search Bar */}
       <input
         type="text"
         placeholder="Search for a country..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="searchInput"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="search-input"
       />
 
-      {/* 🌍 Grid of Countries */}
-      <div className="grid">
-        {filteredCountries.map((country, index) => (
-          <div key={index} className="countryCard">
-            <img
-              src={country.flag}
-              alt={country.name}
-              className="flag"
-              loading="lazy"
-            />
-            <h2 className="country-name">{country.name}</h2>
-          </div>
-        ))}
+      {/* Countries Display */}
+      <div className="countries-container" style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(7, 1fr)", 
+        gap: "1rem", 
+        marginTop: "2rem" 
+      }}>
+        {filteredCountries.length > 0 ? (
+          filteredCountries.map((country) => (
+            <div key={country.code} className="countryCard">
+              <img
+                src={country.flag}
+                alt={country.name}
+                width="100"
+                height="60"
+              />
+              <p>{country.name}</p>
+            </div>
+          ))
+        ) : (
+          <p>No countries found.</p>
+        )}
       </div>
+    </div>
+  );
+}
 
       <style>{`
         body {
